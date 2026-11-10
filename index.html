@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Kiosk Video Loop</title>
+    <title>Origami Tutorial Kiosk</title>
     <style>
         html, body {
             margin: 0;
@@ -147,18 +147,17 @@
 </head>
 <body>
 
-    <!-- Startup Overlay to satisfy iOS unmuted autoplay policy -->
+    <!-- Startup Overlay -->
     <div id="start-overlay">
         <div class="start-box">
-            <h2>Touch to Start</h2>
-            <p>Tap anywhere to begin playback</p>
+            <h2>Touch to Start Tutorial</h2>
+            <p>Tap anywhere to begin folding with sound</p>
         </div>
     </div>
 
     <div class="video-container">
         <video 
             id="kiosk-video"
-            loop 
             playsinline
             webkit-playsinline>
             <source src="https://github.com/syakir-j/LnF/releases/download/v1/video.mp4" type="video/mp4">
@@ -208,14 +207,13 @@
             }
         }, { passive: false });
 
-        // User taps startup overlay -> dismisses overlay, unmsutes, and starts video with audio
+        // Tap overlay to start video with sound
         startOverlay.addEventListener('click', () => {
             video.muted = false;
             video.volume = 1.0;
             video.play();
             playBtn.textContent = "Pause";
 
-            // Fade out and remove overlay
             startOverlay.style.opacity = '0';
             setTimeout(() => {
                 startOverlay.style.display = 'none';
@@ -263,9 +261,16 @@
             video.currentTime = Math.min(video.duration, video.currentTime + 10);
         });
 
+        // When the tutorial finishes, reset and bring back the startup screen
         video.addEventListener('ended', () => {
             video.currentTime = 0;
-            video.play();
+            video.pause();
+            playBtn.textContent = "Play";
+
+            startOverlay.style.display = 'flex';
+            setTimeout(() => {
+                startOverlay.style.opacity = '1';
+            }, 10);
         });
     </script>
 
