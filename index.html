@@ -40,7 +40,6 @@
             background-color: #000000;
             z-index: 1;
         }
-        /* Full-width bottom overlay container */
         .controls-overlay {
             position: absolute;
             bottom: 0;
@@ -87,7 +86,6 @@
         .kiosk-btn:active {
             background-color: rgba(255, 255, 255, 0.3);
         }
-        /* Custom Seek Bar Style */
         #seek-bar {
             flex-grow: 1;
             height: 6px;
@@ -117,14 +115,12 @@
             id="kiosk-video"
             loop 
             autoplay 
-            muted
             playsinline
             webkit-playsinline>
             <source src="https://github.com/syakir-j/LnF/releases/download/v1/video.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
 
-        <!-- Bottom Controls Overlay -->
         <div class="controls-overlay">
             <div class="time-row">
                 <span id="current-time">0:00</span>
@@ -148,12 +144,23 @@
         const currentTimeEl = document.getElementById('current-time');
         const durationEl = document.getElementById('duration');
 
-        // Format seconds into M:SS
         function formatTime(seconds) {
             const minutes = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
         }
+
+        // Force unmuted and full volume right away on load
+        video.muted = false;
+        video.volume = 1.0;
+
+        // Attempt immediate playback with sound
+        video.play().catch(err => {
+            console.log("Browser policy blocked unmuted autoplay on load. Waiting for first interaction:", err);
+            // Fallback: If blocked, mute to start loop, then unmute on first tap
+            video.muted = true;
+            video.play();
+        });
 
         // Global gesture zoom prevention
         ['gesturestart', 'gesturechange', 'gestureend'].forEach(type => {
@@ -168,13 +175,11 @@
             }
         }, { passive: false });
 
-        // Metadata loaded: set seek bar max and duration text
         video.addEventListener('loadedmetadata', () => {
             seekBar.max = video.duration;
             durationEl.textContent = formatTime(video.duration);
         });
 
-        // Update seek bar and current timestamp during playback
         let isSeeking = false;
         video.addEventListener('timeupdate', () => {
             if (!isSeeking) {
@@ -183,7 +188,6 @@
             }
         });
 
-        // Scrubbing events
         seekBar.addEventListener('input', () => {
             isSeeking = true;
             video.currentTime = seekBar.value;
@@ -198,7 +202,6 @@
             }
         });
 
-        // Play/Pause toggle logic
         playBtn.addEventListener('click', () => {
             if (video.paused) {
                 video.play();
@@ -214,7 +217,6 @@
             }
         });
 
-        // Rewind 10 seconds
         rewindBtn.addEventListener('click', () => {
             video.currentTime = Math.max(0, video.currentTime - 10);
             if (video.muted) {
@@ -223,7 +225,6 @@
             }
         });
 
-        // Forward 10 seconds
         forwardBtn.addEventListener('click', () => {
             video.currentTime = Math.min(video.duration, video.currentTime + 10);
             if (video.muted) {
@@ -232,7 +233,6 @@
             }
         });
 
-        // Backup loop enforcement
         video.addEventListener('ended', () => {
             video.currentTime = 0;
             video.play().catch(err => console.log("Autoplay prevented:", err));
