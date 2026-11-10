@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Kiosk Video Loop</title>
     <style>
         html, body {
@@ -15,7 +15,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Disables all browser pan, zoom, and touch gesture actions */
             touch-action: none;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -30,13 +29,15 @@
             object-fit: contain;
             background-color: #000000;
             z-index: 1;
-            /* Prevents touch gestures directly on the video element */
             touch-action: none;
         }
         
-        /* Hides WebKit AirPlay and Picture-in-Picture controls */
+        /* Hides WebKit AirPlay, PiP, and Volume controls */
         video::-webkit-media-controls-airplay-button,
-        video::-webkit-media-controls-picture-in-picture-button {
+        video::-webkit-media-controls-picture-in-picture-button,
+        video::-webkit-media-controls-mute-button,
+        video::-webkit-media-controls-volume-slider,
+        video::-webkit-media-controls-volume-slider-container {
             display: none !important;
         }
     </style>
@@ -60,7 +61,11 @@
     <script>
         const video = document.getElementById('kiosk-video');
 
-        // Completely intercepts and blocks multi-touch pinch gestures
+        // Prevent multi-touch pinch gestures at the document level
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+
         document.addEventListener('touchmove', function (e) {
             if (e.touches.length > 1) {
                 e.preventDefault();
