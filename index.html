@@ -27,8 +27,17 @@
             z-index: 1;
         }
         
-        /* Hides the AirPlay button on Safari/WebKit video controls */
+        /* Hides AirPlay, PiP, and Volume controls on WebKit/Safari/iOS */
         video::-webkit-media-controls-airplay-button {
+            display: none !important;
+        }
+        video::-webkit-media-controls-mute-button {
+            display: none !important;
+        }
+        video::-webkit-media-controls-volume-slider {
+            display: none !important;
+        }
+        video::-webkit-media-controls-volume-slider-container {
             display: none !important;
         }
 
@@ -55,9 +64,17 @@
     <script>
         const video = document.getElementById('kiosk-video');
         
-        // Force unmuted and full volume
+        // Enforce maximum volume and unmuted state programmatically
         video.muted = false;
         video.volume = 1.0;
+
+        // Prevent volume or mute changes if triggered programmatically
+        video.addEventListener('volumechange', () => {
+            if (video.muted || video.volume < 1.0) {
+                video.muted = false;
+                video.volume = 1.0;
+            }
+        });
 
         // Backup loop enforcement
         video.addEventListener('ended', () => {
