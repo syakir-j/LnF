@@ -26,6 +26,12 @@
             background-color: #000000;
             z-index: 1;
         }
+        
+        /* Hides the AirPlay button on Safari/WebKit video controls */
+        video::-webkit-media-controls-airplay-button {
+            display: none !important;
+        }
+
         * {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -39,23 +45,24 @@
         controls 
         loop 
         autoplay 
-        muted
         playsinline
         webkit-playsinline>
-        <!-- Updated direct release asset URL -->
         <source src="https://github.com/syakir-j/LnF/releases/download/v1/video.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 
     <script>
         const video = document.getElementById('kiosk-video');
+        
+        // Force unmuted and full volume
+        video.muted = false;
         video.volume = 1.0;
-        window.addEventListener('click', () => {
-            if (video.muted) {
-                video.muted = false;
-                video.volume = 1.0;
-            }
-        }, { once: true });
+
+        // Backup loop enforcement
+        video.addEventListener('ended', () => {
+            video.currentTime = 0;
+            video.play().catch(err => console.log("Autoplay with sound prevented by browser:", err));
+        });
     </script>
 
 </body>
