@@ -40,7 +40,6 @@
             background-color: #000000;
             z-index: 1;
         }
-        /* Invisible shield overlay that blocks multi-touch pinches over the player */
         .touch-shield {
             position: absolute;
             top: 0;
@@ -49,15 +48,13 @@
             height: 100%;
             z-index: 2;
             background: transparent;
+            pointer-events: none;
             touch-action: none;
         }
         
-        /* Hides WebKit AirPlay, PiP, and Volume controls */
+        /* Hides WebKit AirPlay and PiP controls */
         video::-webkit-media-controls-airplay-button,
-        video::-webkit-media-controls-picture-in-picture-button,
-        video::-webkit-media-controls-mute-button,
-        video::-webkit-media-controls-volume-slider,
-        video::-webkit-media-controls-volume-slider-container {
+        video::-webkit-media-controls-picture-in-picture-button {
             display: none !important;
         }
     </style>
@@ -78,27 +75,25 @@
             <source src="https://github.com/syakir-j/LnF/releases/download/v1/video.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <!-- Invisible overlay capturing multi-touch gestures -->
         <div class="touch-shield" id="touchShield"></div>
     </div>
 
     <script>
         const video = document.getElementById('kiosk-video');
-        const shield = document.getElementById('touchShield');
 
-        // Prevent multi-touch pinch gestures on the shield overlay
-        shield.addEventListener('touchmove', function (e) {
+        // Prevent pinch-to-zoom globally
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('touchmove', function (e) {
             if (e.touches.length > 1) {
                 e.preventDefault();
             }
         }, { passive: false });
 
-        shield.addEventListener('gesturestart', function (e) {
-            e.preventDefault();
-        });
-
-        // Pass single taps through the shield to unmute the video
-        shield.addEventListener('click', () => {
+        // Unmute audio on first user touch/click
+        window.addEventListener('click', () => {
             if (video.muted) {
                 video.muted = false;
                 video.volume = 1.0;
